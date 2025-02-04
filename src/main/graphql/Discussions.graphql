@@ -1,0 +1,11 @@
+query Discussions($name: String!, $owner: String!) {
+  repository(name: $name, owner: $owner) {
+    discussions(first: 100, orderBy: { field: CREATED_AT, direction: DESC }) {
+      nodes {
+        title
+        url
+        number
+      }
+    }
+  }
+}
