@@ -22,6 +22,7 @@ data class Config<BackendConfig>(
     data class TrackedRepo @JvmOverloads constructor(
         val owner: String,
         val name: String,
+        @EncodeDefault
         var latestKnownId: Int = -1
     )
 }
