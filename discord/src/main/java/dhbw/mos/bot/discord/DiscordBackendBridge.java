@@ -5,6 +5,7 @@ import dhbw.mos.bot.cal.Event;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,12 +40,8 @@ public class DiscordBackendBridge implements BackendBridge {
 
     @Override
     public void updateCalendarData(List<Event> events) {
-        long calendarChannelId = backend.getConfigManager().getConfig().getBackend().getCalendarChannel();
-        TextChannel calendarChannel = backend.getJda().getTextChannelById(calendarChannelId);
-        if (calendarChannel == null) {
-            log.error("Invalid calendar channel id");
-            return;
-        }
+        TextChannel calendarChannel = getCalendarChannel();
+        if (calendarChannel == null) return;
 
         EmbedBuilder messageBuilder = events.stream().collect(
                 EmbedBuilder::new,
@@ -68,5 +65,23 @@ public class DiscordBackendBridge implements BackendBridge {
                             }
                     );
         });
+    }
+
+    @Override
+    public void sendCalendarEventNotification() {
+        TextChannel calendarChannel = getCalendarChannel();
+        if (calendarChannel == null) return;
+
+        calendarChannel.sendMessage(backend.getConfigManager().getConfig().getBackend().getCalendarNotificationMessage())
+                .queue(message -> message.delete().queue());
+    }
+
+    private @Nullable TextChannel getCalendarChannel() {
+        long calendarChannelId = backend.getConfigManager().getConfig().getBackend().getCalendarChannel();
+        TextChannel calendarChannel = backend.getJda().getTextChannelById(calendarChannelId);
+        if (calendarChannel == null) {
+            log.error("Invalid calendar channel id");
+        }
+        return calendarChannel;
     }
 }

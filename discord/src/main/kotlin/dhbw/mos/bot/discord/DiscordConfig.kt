@@ -9,7 +9,8 @@ import kotlinx.serialization.Serializable
 data class DiscordConfig(
     val token: String,
     val discussionsChannel: Long,
-    val calendarChannel: Long
+    val calendarChannel: Long,
+    val calendarNotificationMessage: String
 ) {
     companion object {
         @JvmStatic
