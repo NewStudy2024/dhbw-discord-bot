@@ -66,6 +66,11 @@ public class DiscussionsRoutine {
         DiscussionsQuery.Data data = response.dataOrThrow();
         log.debug(data.toString());
 
+        if (data.repository == null) {
+            log.warn("Unable to find repository: {}", trackedRepo.toString());
+            return;
+        }
+
         bot.getBackend().ifPresent(backend -> {
             for (DiscussionsQuery.Node discussion : data.repository.discussions.nodes.reversed()) {
                 if (trackedRepo.getLatestKnownId() >= discussion.number) continue;

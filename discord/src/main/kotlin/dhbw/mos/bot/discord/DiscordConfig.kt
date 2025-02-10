@@ -8,7 +8,8 @@ import kotlinx.serialization.Serializable
 @BackendName("discord")
 data class DiscordConfig(
     val token: String,
-    val discussionsChannel: Long
+    val discussionsChannel: Long,
+    val calendarChannel: Long
 ) {
     companion object {
         @JvmStatic

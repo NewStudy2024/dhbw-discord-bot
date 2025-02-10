@@ -14,7 +14,8 @@ data class Config<BackendConfig>(
     private val backendWrapped: BackendConfigWrapper<BackendConfig>,
     val githubToken: String,
     @EncodeDefault
-    val trackedRepos: MutableList<TrackedRepo> = mutableListOf()
+    val trackedRepos: MutableList<TrackedRepo> = mutableListOf(),
+    val calendarUrl: String,
 ) {
     val backend get() = backendWrapped.backendConfig
 
