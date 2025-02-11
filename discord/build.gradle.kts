@@ -9,11 +9,13 @@ version = "1.0"
 
 repositories {
     mavenCentral()
+    maven { url = uri("https://m2.chew.pro/releases") }
 }
 
 dependencies {
     implementation(project(":"))
     implementation("net.dv8tion:JDA:5.2.3")
+    implementation("pw.chew:jda-chewtils:2.0")
     implementation("ch.qos.logback:logback-classic:1.5.6")
 }
 
