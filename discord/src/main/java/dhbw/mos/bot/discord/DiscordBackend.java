@@ -5,6 +5,7 @@ import dhbw.mos.bot.Bot;
 import dhbw.mos.bot.bridge.BackendBridge;
 import dhbw.mos.bot.bridge.BotBridge;
 import dhbw.mos.bot.config.ConfigManager;
+import dhbw.mos.bot.discord.commands.ListTrackedRepositories;
 import dhbw.mos.bot.discord.commands.TrackRepository;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
@@ -24,7 +25,8 @@ public class DiscordBackend {
 
         this.jda.addEventListener(
                 new CommandClientBuilder().useHelpBuilder(false).setActivity(null).setOwnerId(0).addSlashCommands(
-                        new TrackRepository(this)
+                        new TrackRepository(this),
+                        new ListTrackedRepositories(this)
                 ).build()
         );
     }
