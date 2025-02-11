@@ -3,13 +3,16 @@ package dhbw.mos.bot.discord;
 import dhbw.mos.bot.bridge.BackendBridge;
 import dhbw.mos.bot.cal.Event;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 public class DiscordBackendBridge implements BackendBridge {
     private static final Logger log = LoggerFactory.getLogger(DiscordBackendBridge.class);
@@ -53,18 +56,15 @@ public class DiscordBackendBridge implements BackendBridge {
         );
         messageBuilder.setTitle("Calendar");
 
-        calendarChannel.retrievePinnedMessages().queue(pinned -> {
-            pinned.stream()
-                    .filter(message -> message.getAuthor() == message.getJDA().getSelfUser())
-                    .findFirst()
-                    .ifPresentOrElse(
-                            message -> message.editMessageEmbeds(messageBuilder.build()).queue(),
-                            () -> {
-                                calendarChannel.sendMessageEmbeds(messageBuilder.build())
-                                        .queue(message -> message.pin().queue());
-                            }
-                    );
-        });
+        withFirstPinnedMessageMessage(
+                calendarChannel,
+                message -> message.editMessageEmbeds(messageBuilder.build()).queue(),
+                channel -> {
+                    channel.sendMessageEmbeds(messageBuilder.build())
+                            .queue(message -> message.pin().queue());
+                }
+        );
+
     }
 
     @Override
@@ -74,6 +74,20 @@ public class DiscordBackendBridge implements BackendBridge {
 
         calendarChannel.sendMessage(backend.getConfigManager().getConfig().getBackend().getCalendarNotificationMessage())
                 .queue(message -> message.delete().queue());
+
+        withFirstPinnedMessageMessage(
+                calendarChannel,
+                message -> {
+                    message.clearReactions().queue(v -> {
+                        message.addReaction(Emoji.fromUnicode("⌛")).queue();
+                        message.addReaction(Emoji.fromUnicode("\uD83C\uDDF1")).queue(); // L
+                        message.addReaction(Emoji.fromUnicode("\uD83C\uDDE6")).queue(); // A
+                        message.addReaction(Emoji.fromUnicode("\uD83C\uDDF9")).queue(); // T
+                        message.addReaction(Emoji.fromUnicode("\uD83C\uDDEA")).queue(); // E
+                    });
+                },
+                channel -> {}
+        );
     }
 
     private @Nullable TextChannel getCalendarChannel() {
@@ -83,5 +97,14 @@ public class DiscordBackendBridge implements BackendBridge {
             log.error("Invalid calendar channel id");
         }
         return calendarChannel;
+    }
+
+    private void withFirstPinnedMessageMessage(TextChannel channel, Consumer<Message> withMessage, Consumer<TextChannel> notFound) {
+        channel.retrievePinnedMessages().queue(pinned -> {
+            pinned.stream()
+                    .filter(message -> message.getAuthor() == message.getJDA().getSelfUser())
+                    .findFirst()
+                    .ifPresentOrElse(withMessage, () -> notFound.accept(channel));
+        });
     }
 }
