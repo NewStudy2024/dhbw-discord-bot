@@ -1,6 +1,6 @@
 package dhbw.mos.bot.cal;
 
-import dhbw.mos.bot.config.ConfigManager;
+import dhbw.mos.bot.Common;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,13 +16,16 @@ public class CalendarService {
     private static final Logger log = LoggerFactory.getLogger(CalendarService.class);
     public static final ZoneId TIMEZONE = ZoneId.of("Europe/Berlin");
 
-    private final ConfigManager<?> configManager;
-    private List<Event> events;
+    private final Common common;
+    private List<Event> events = List.of();
 
 
-    public CalendarService(ConfigManager<?> configManager) {
-        this.configManager = configManager;
-        this.events = loadEvents();
+    public CalendarService(Common common) {
+        this.common = common;
+    }
+
+    public void initialize() {
+        events = loadEvents();
     }
 
     public List<Event> getEvents() {
@@ -39,7 +42,7 @@ public class CalendarService {
 
     private List<Event> loadEvents() {
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(configManager.getConfig().getCalendarUrl()))
+                .uri(URI.create(common.getConfigManager().getConfig().getCalendarUrl()))
                 .build();
 
         try (HttpClient httpClient = HttpClient.newHttpClient()) {

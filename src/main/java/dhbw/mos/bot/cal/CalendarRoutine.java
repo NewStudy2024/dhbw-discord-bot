@@ -1,11 +1,10 @@
 package dhbw.mos.bot.cal;
 
-import dhbw.mos.bot.Bot;
+import dhbw.mos.bot.Common;
 
 import java.time.Duration;
 import java.time.Instant;
 import java.time.ZonedDateTime;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -13,13 +12,15 @@ import java.util.TimerTask;
 public class CalendarRoutine {
     private static final Duration NOTIFICATION_OFFSET = Duration.ofMinutes(5);
 
-    private final Bot bot;
+    private final Common common;
     private Instant lastNotified = Instant.EPOCH;
 
 
-    public CalendarRoutine(Bot bot) {
-        this.bot = bot;
+    public CalendarRoutine(Common common) {
+        this.common = common;
+    }
 
+    public void initialize() {
         TimerTask updateTask = new TimerTask() {
             @Override
             public void run() {
@@ -41,32 +42,31 @@ public class CalendarRoutine {
     }
 
     private void updateCalendar() {
-        bot.getCalendarService().reload();
+        common.getCalendarService().reload();
 
-        ZonedDateTime todayStart = bot.getCalendarService().getNow().withHour(0).withMinute(0).withSecond(0);
+        ZonedDateTime todayStart = common.getCalendarService().getNow().withHour(0).withMinute(0).withSecond(0);
         ZonedDateTime todayEnd = todayStart.plusDays(1);
 
 
-        List<Event> eventsToday = bot.getCalendarService().getEvents()
+        List<Event> eventsToday = common.getCalendarService().getEvents()
                 .stream()
                 .filter(event -> doesTimeOverlap(todayStart, todayEnd, event.start(), event.end()))
                 .toList();
 
-        bot.getBackend().ifPresent(backend -> backend.updateCalendarData(eventsToday));
+        common.getBackend().updateCalendarData(eventsToday);
     }
 
     private void sendEventNotifications() {
-        ZonedDateTime now = bot.getCalendarService().getNow();
+        ZonedDateTime now = common.getCalendarService().getNow();
 
         if (lastNotified.plus(NOTIFICATION_OFFSET).isAfter(now.toInstant())) return;
 
-        bot.getCalendarService().getEvents().stream()
+        common.getCalendarService().getEvents().stream()
                 .filter(event -> event.start().isAfter(now))
                 .filter(event -> event.start().isBefore(now.plus(NOTIFICATION_OFFSET)))
                 .findFirst()
-                .flatMap(event -> bot.getBackend())
-                .ifPresent(backend -> {
-                    backend.sendCalendarEventNotification();
+                .ifPresent(_event -> {
+                    common.getBackend().sendCalendarEventNotification();
                     lastNotified = Instant.now();
                 });
     }

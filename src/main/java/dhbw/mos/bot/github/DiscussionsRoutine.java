@@ -2,7 +2,7 @@ package dhbw.mos.bot.github;
 
 import com.apollographql.apollo.api.ApolloResponse;
 import com.apollographql.java.client.ApolloClient;
-import dhbw.mos.bot.Bot;
+import dhbw.mos.bot.Common;
 import dhbw.mos.bot.config.Config;
 import dhbw.mos.bot.github.graphql.DiscussionsQuery;
 import org.slf4j.Logger;
@@ -16,19 +16,21 @@ import java.util.TimerTask;
 public class DiscussionsRoutine {
     private static final Logger log = LoggerFactory.getLogger(DiscussionsRoutine.class);
 
-    private final Bot bot;
+    private final Common common;
     private final ApolloClient client;
     private int currentRepoIndex = 0;
 
-    public DiscussionsRoutine(Bot bot) {
-        String token = bot.getConfigManager().getConfig().getGithubToken();
+    public DiscussionsRoutine(Common common) {
+        String token = common.getConfigManager().getConfig().getGithubToken();
 
-        this.bot = bot;
+        this.common = common;
         this.client = new ApolloClient.Builder()
                 .serverUrl("https://api.github.com/graphql")
                 .addHttpHeader("Authorization", "Bearer " + token)
                 .build();
+    }
 
+    public void initialize() {
         TimerTask task = new TimerTask() {
             @Override
             public void run() {
@@ -40,7 +42,7 @@ public class DiscussionsRoutine {
     }
 
     private void queryDiscussions() {
-        List<Config.TrackedRepo> trackedRepos = bot.getConfigManager().getConfig().getTrackedRepos();
+        List<Config.TrackedRepo> trackedRepos = common.getConfigManager().getConfig().getTrackedRepos();
         int trackedCount = trackedRepos.size();
 
         if (trackedCount == 0) return;
@@ -71,19 +73,17 @@ public class DiscussionsRoutine {
             return;
         }
 
-        bot.getBackend().ifPresent(backend -> {
-            for (DiscussionsQuery.Node discussion : data.repository.discussions.nodes.reversed()) {
-                if (trackedRepo.getLatestKnownId() >= discussion.number) continue;
-                backend.postDiscussionNotification(
-                        trackedRepo.getOwner(),
-                        discussion.title,
-                        discussion.url.toString(),
-                        () -> {
-                            trackedRepo.setLatestKnownId(discussion.number);
-                            bot.getConfigManager().save();
-                        }
-                );
-            }
-        });
+        for (DiscussionsQuery.Node discussion : data.repository.discussions.nodes.reversed()) {
+            if (trackedRepo.getLatestKnownId() >= discussion.number) continue;
+            common.getBackend().postDiscussionNotification(
+                    trackedRepo.getOwner(),
+                    discussion.title,
+                    discussion.url.toString(),
+                    () -> {
+                        trackedRepo.setLatestKnownId(discussion.number);
+                        common.getConfigManager().save();
+                    }
+            );
+        }
     }
 }

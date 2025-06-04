@@ -16,14 +16,12 @@ public class ListTrackedRepositories extends SlashCommand {
 
     @Override
     protected void execute(SlashCommandEvent event) {
-        backend.getBot().ifPresent(bot -> {
-            MessageEmbed message = new EmbedBuilder()
-                    .setDescription(String.join(
-                            "\n",
-                            bot.listTrackedRepositories().stream().map(repo -> "- " + repo).toList()
-                    ))
-                    .build();
-            event.replyEmbeds(message).setEphemeral(true).queue();
-        });
+        MessageEmbed message = new EmbedBuilder()
+                .setDescription(String.join(
+                        "\n",
+                        backend.getCommon().listTrackedRepositories().stream().map(repo -> "- " + repo).toList()
+                ))
+                .build();
+        event.replyEmbeds(message).setEphemeral(true).queue();
     }
 }
