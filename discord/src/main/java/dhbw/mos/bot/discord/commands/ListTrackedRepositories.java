@@ -19,7 +19,11 @@ public class ListTrackedRepositories extends SlashCommand {
         MessageEmbed message = new EmbedBuilder()
                 .setDescription(String.join(
                         "\n",
-                        backend.getCommon().listTrackedRepositories().stream().map(repo -> "- " + repo).toList()
+                        backend.getCommon()
+                                .listTrackedRepositories()
+                                .stream()
+                                .map(repo -> "- %s/%s".formatted(repo.getOwner(), repo.getName()))
+                                .toList()
                 ))
                 .build();
         event.replyEmbeds(message).setEphemeral(true).queue();

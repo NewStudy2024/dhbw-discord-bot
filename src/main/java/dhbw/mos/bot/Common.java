@@ -50,9 +50,7 @@ public class Common {
         getConfigManager().save();
     }
 
-    public List<String> listTrackedRepositories() {
-        return getConfigManager().getConfig().getTrackedRepos().stream()
-                .map(repo -> "%s/%s".formatted(repo.getOwner(), repo.getName()))
-                .toList();
+    public List<Config.TrackedRepo> listTrackedRepositories() {
+        return getConfigManager().getConfig().getTrackedRepos().stream().toList();
     }
 }
