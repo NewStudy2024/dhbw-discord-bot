@@ -3,6 +3,7 @@ package dhbw.mos.bot.github;
 import com.apollographql.apollo.api.ApolloResponse;
 import com.apollographql.java.client.ApolloClient;
 import dhbw.mos.bot.Common;
+import dhbw.mos.bot.Util;
 import dhbw.mos.bot.config.Config;
 import dhbw.mos.bot.github.graphql.DiscussionsQuery;
 import org.slf4j.Logger;
@@ -10,8 +11,6 @@ import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 
 public class DiscussionsRoutine {
     private static final Logger log = LoggerFactory.getLogger(DiscussionsRoutine.class);
@@ -31,14 +30,7 @@ public class DiscussionsRoutine {
     }
 
     public void initialize() {
-        TimerTask task = new TimerTask() {
-            @Override
-            public void run() {
-                DiscussionsRoutine.this.queryDiscussions();
-            }
-        };
-
-        new Timer("Discussions Routine").scheduleAtFixedRate(task, 1000, Duration.ofSeconds(5).toMillis());
+        Util.scheduleAtRate("Discussions Routine", this::queryDiscussions, Duration.ofSeconds(5), Duration.ofSeconds(1));
     }
 
     private void queryDiscussions() {
