@@ -16,6 +16,7 @@ data class Config<BackendConfig>(
     @EncodeDefault
     val trackedRepos: MutableList<TrackedRepo> = mutableListOf(),
     val calendarUrl: String,
+    val deadlines: MutableList<Deadline> = mutableListOf()
 ) {
     val backend get() = backendWrapped.backendConfig
 
@@ -25,6 +26,14 @@ data class Config<BackendConfig>(
         val name: String,
         @EncodeDefault
         var latestKnownId: Int = -1
+    )
+
+    @Serializable
+    data class Deadline(
+        val id: Long,
+        val name: String,
+        val description: String?,
+        val date: String
     )
 }
 

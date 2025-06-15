@@ -1,6 +1,7 @@
 package dhbw.mos.bot;
 
 import dhbw.mos.bot.cal.Event;
+import dhbw.mos.bot.config.Config;
 import dhbw.mos.bot.config.ConfigManager;
 
 import java.util.List;
@@ -10,4 +11,5 @@ public interface Backend {
     void postDiscussionNotification(String author, String title, String url, Runnable posted);
     void updateCalendarData(List<Event> events);
     void sendCalendarEventNotification();
+    void updateDeadlines(List<Config.Deadline> deadlines);
 }

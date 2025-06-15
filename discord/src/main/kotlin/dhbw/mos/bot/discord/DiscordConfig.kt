@@ -10,7 +10,8 @@ data class DiscordConfig(
     val token: String,
     val discussionsChannel: Long,
     val calendarChannel: Long,
-    val calendarNotificationMessage: String
+    val calendarNotificationMessage: String,
+    val deadlinesChannel: Long
 ) {
     companion object {
         @JvmStatic
