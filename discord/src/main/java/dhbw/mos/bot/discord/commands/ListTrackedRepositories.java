@@ -20,6 +20,7 @@ public class ListTrackedRepositories extends SlashCommand {
                 .setDescription(String.join(
                         "\n",
                         backend.getCommon()
+                                .getDiscussionService()
                                 .listTrackedRepositories()
                                 .stream()
                                 .map(repo -> "- %s/%s".formatted(repo.getOwner(), repo.getName()))

@@ -29,7 +29,7 @@ public class UntrackRepository extends SlashCommand {
         String owner = ownedRepo[0];
         String repo = ownedRepo.length > 1 ? ownedRepo[1] : "";
 
-        backend.getCommon().untrackRepository(owner, repo);
+        backend.getCommon().getDiscussionService().untrackRepository(owner, repo);
         event.reply("Not tracking `%s/%s` anymore".formatted(owner, repo)).setEphemeral(true).queue();
     }
 
@@ -37,6 +37,7 @@ public class UntrackRepository extends SlashCommand {
     public void onAutoComplete(CommandAutoCompleteInteractionEvent event) {
         event.replyChoiceStrings(
                 backend.getCommon()
+                        .getDiscussionService()
                         .listTrackedRepositories()
                         .stream()
                         .map(repo ->

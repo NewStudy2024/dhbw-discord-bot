@@ -29,7 +29,7 @@ public class TrackRepository extends SlashCommand {
         String owner = Objects.requireNonNull(event.getOption(OPTION_OWNER)).getAsString();
         String repo = Objects.requireNonNull(event.getOption(OPTION_REPO)).getAsString();
 
-        backend.getCommon().trackRepository(owner, repo);
+        backend.getCommon().getDiscussionService().trackRepository(owner, repo);
         event.reply("Now tracking `%s/%s`".formatted(owner, repo)).setEphemeral(true).queue();
     }
 }

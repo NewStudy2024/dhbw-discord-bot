@@ -34,7 +34,7 @@ public class DiscussionsRoutine {
     }
 
     private void queryDiscussions() {
-        List<Config.TrackedRepo> trackedRepos = common.getConfigManager().getConfig().getTrackedRepos();
+        List<Config.TrackedRepo> trackedRepos = common.getDiscussionService().listTrackedRepositories();
         int trackedCount = trackedRepos.size();
 
         if (trackedCount == 0) return;
